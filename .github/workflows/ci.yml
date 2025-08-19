@@ -1,0 +1,94 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+        coverage: none
+    
+    - name: Validate PHP syntax
+      run: |
+        find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+    
+    - name: Check file structure
+      run: |
+        echo "Checking required files..."
+        test -f mac-vendor-lookup.php || exit 1
+        test -f README.md || exit 1
+        test -f LICENSE || exit 1
+        test -d css || exit 1
+        test -d js || exit 1
+        echo "✅ All required files present"
+    
+    - name: Validate CSS
+      run: |
+        echo "Checking CSS files..."
+        test -f css/mac-vendor-lookup.css || exit 1
+        echo "✅ CSS file present"
+    
+    - name: Validate JavaScript
+      run: |
+        echo "Checking JavaScript files..."
+        test -f js/mac-vendor-lookup.js || exit 1
+        echo "✅ JavaScript file present"
+    
+    - name: Check plugin header
+      run: |
+        echo "Validating plugin header..."
+        if grep -q "Plugin Name:" mac-vendor-lookup.php; then
+          echo "✅ Plugin header found"
+        else
+          echo "❌ Plugin header missing"
+          exit 1
+        fi
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Security scan
+      run: |
+        echo "Running security checks..."
+        # Check for common security issues
+        if grep -r "wp_die" . --include="*.php" | grep -v "wp_die('Sécurité')" | grep -v "wp_die('Security')"; then
+          echo "⚠️  Potential security issue found"
+        else
+          echo "✅ No obvious security issues found"
+        fi
+
+  documentation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check documentation
+      run: |
+        echo "Checking documentation..."
+        test -f README.md || exit 1
+        test -f DEVELOPER.md || exit 1
+        echo "✅ Documentation files present"
+        
+        # Check README content
+        if grep -q "## Installation" README.md; then
+          echo "✅ README installation section found"
+        else
+          echo "❌ README installation section missing"
+          exit 1
+        fi
