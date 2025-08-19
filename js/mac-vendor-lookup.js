@@ -59,6 +59,40 @@ jQuery(document).ready(function($) {
         clearResults();
     });
     
+    // Gestionnaire pour le debug (si disponible)
+    $('#debug_mac').on('click', function() {
+        const macAddresses = $('#mac_addresses').val().trim();
+        
+        if (!macAddresses) {
+            showError('Veuillez saisir une adresse MAC pour le debug');
+            return;
+        }
+        
+        // Prendre la première adresse MAC
+        const firstMac = macAddresses.split(/[\r\n,]+/)[0].trim();
+        
+        // Envoyer la requête de debug
+        $.ajax({
+            url: mac_vendor_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'mac_vendor_debug',
+                nonce: mac_vendor_ajax.nonce,
+                mac_address: firstMac
+            },
+            success: function(response) {
+                if (response.success) {
+                    displayDebugInfo(response.data);
+                } else {
+                    showError(response.data || 'Erreur de debug');
+                }
+            },
+            error: function() {
+                showError('Erreur de connexion pour le debug');
+            }
+        });
+    });
+    
     // Fonction pour afficher les résultats
     function displayResults(results) {
         const tbody = $('#results_body');
@@ -165,6 +199,40 @@ jQuery(document).ready(function($) {
     // Fonction pour masquer les erreurs
     function hideError() {
         $('#error').hide();
+    }
+    
+    // Fonction pour afficher les informations de debug
+    function displayDebugInfo(debugData) {
+        let debugHtml = '<div class="debug-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; font-family: monospace; font-size: 12px;">';
+        debugHtml += '<h4>🔍 Informations de Debug</h4>';
+        debugHtml += '<p><strong>Adresse MAC:</strong> ' + debugData.mac_address + '</p>';
+        debugHtml += '<p><strong>OUI extrait:</strong> ' + debugData.oui_extracted + '</p>';
+        debugHtml += '<p><strong>Fichier CSV existe:</strong> ' + (debugData.csv_file_exists ? '✅ Oui' : '❌ Non') + '</p>';
+        debugHtml += '<p><strong>Taille du fichier:</strong> ' + (debugData.csv_file_size ? (debugData.csv_file_size / 1024 / 1024).toFixed(2) + ' MB' : 'N/A') + '</p>';
+        debugHtml += '<p><strong>Constructeur trouvé:</strong> ' + (debugData.vendor_found ? '✅ Oui' : '❌ Non') + '</p>';
+        
+        if (debugData.vendor_data && Object.keys(debugData.vendor_data).length > 0) {
+            debugHtml += '<p><strong>Données du constructeur:</strong></p>';
+            debugHtml += '<ul>';
+            for (let key in debugData.vendor_data) {
+                debugHtml += '<li>' + key + ': ' + debugData.vendor_data[key] + '</li>';
+            }
+            debugHtml += '</ul>';
+        }
+        
+        if (debugData.first_lines && debugData.first_lines.length > 0) {
+            debugHtml += '<p><strong>Premières lignes du CSV:</strong></p>';
+            debugHtml += '<ul>';
+            debugData.first_lines.forEach(function(line, index) {
+                debugHtml += '<li>Ligne ' + (index + 1) + ': ' + line.join(' | ') + '</li>';
+            });
+            debugHtml += '</ul>';
+        }
+        
+        debugHtml += '</div>';
+        
+        // Afficher les informations de debug
+        $('#error').html(debugHtml).show();
     }
     
     // Validation en temps réel des adresses MAC
