@@ -184,12 +184,38 @@ class MacVendorLookup {
         // Ignorer l'en-tête
         $header = fgetcsv($handle);
         
+        // Détecter le format du fichier CSV
+        $csv_format = 'standard';
+        if ($header && count($header) >= 4) {
+            $first_col = trim($header[0]);
+            if (strpos(strtolower($first_col), 'registry') !== false) {
+                $csv_format = 'ieee';
+            }
+        }
+        
         $line_count = 0;
         while (($data = fgetcsv($handle)) !== false) {
             $line_count++;
             
-            if (count($data) >= 1) {
-                $csv_oui_raw = trim($data[0]);
+            if (count($data) >= 2) {
+                $csv_oui_raw = '';
+                $vendor = '';
+                $organization = '';
+                $address = '';
+                
+                if ($csv_format === 'ieee') {
+                    // Format IEEE: Registry | Assignment | Organization Name | Organization Address
+                    $csv_oui_raw = trim($data[1]); // Assignment (colonne 2)
+                    $vendor = isset($data[2]) ? trim($data[2]) : '';
+                    $organization = isset($data[2]) ? trim($data[2]) : '';
+                    $address = isset($data[3]) ? trim($data[3]) : '';
+                } else {
+                    // Format standard: OUI | Organization Name | Organization Address
+                    $csv_oui_raw = trim($data[0]);
+                    $vendor = isset($data[1]) ? trim($data[1]) : '';
+                    $organization = isset($data[2]) ? trim($data[2]) : '';
+                    $address = isset($data[3]) ? trim($data[3]) : '';
+                }
                 
                 // Essayer plusieurs formats de nettoyage
                 $csv_oui_variants = array(
@@ -205,9 +231,9 @@ class MacVendorLookup {
                         if ($csv_oui_variant === $oui_variant) {
                             fclose($handle);
                             return array(
-                                'vendor' => trim($data[1]),
-                                'organization' => trim($data[2]),
-                                'address' => isset($data[3]) ? trim($data[3]) : ''
+                                'vendor' => $vendor,
+                                'organization' => $organization,
+                                'address' => $address
                             );
                         }
                     }
@@ -268,16 +294,18 @@ class MacVendorLookup {
         // Ignorer l'en-tête si présent
         $header = fgetcsv($handle);
         
-        // Vérifier si l'en-tête contient des données valides
-        if ($header && count($header) > 0) {
+        // Détecter le format du fichier CSV
+        $csv_format = 'standard'; // format par défaut
+        if ($header && count($header) >= 4) {
             $first_col = trim($header[0]);
-            // Si la première colonne n'est pas un OUI valide, c'est un en-tête
-            if (!preg_match('/^[0-9A-Fa-f]{6}$/', preg_replace('/[^0-9A-Fa-f]/', '', $first_col))) {
-                // C'est un en-tête, continuer à la ligne suivante
-            } else {
-                // C'est déjà des données, revenir au début
-                rewind($handle);
+            if (strpos(strtolower($first_col), 'registry') !== false) {
+                $csv_format = 'ieee'; // format IEEE avec Registry, Assignment, etc.
             }
+        }
+        
+        // Debug: Log le format détecté
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log("MAC Vendor Lookup: Format CSV détecté: $csv_format");
         }
         
         $line_count = 0;
@@ -287,8 +315,26 @@ class MacVendorLookup {
         while (($data = fgetcsv($handle)) !== false) {
             $line_count++;
             
-            if (count($data) >= 1) {
-                $csv_oui_raw = trim($data[0]);
+            if (count($data) >= 2) {
+                $csv_oui_raw = '';
+                $vendor = '';
+                $organization = '';
+                $address = '';
+                
+                if ($csv_format === 'ieee') {
+                    // Format IEEE: Registry | Assignment | Organization Name | Organization Address
+                    $csv_oui_raw = trim($data[1]); // Assignment (colonne 2)
+                    $vendor = isset($data[2]) ? trim($data[2]) : ''; // Organization Name (colonne 3)
+                    $organization = isset($data[2]) ? trim($data[2]) : ''; // Organization Name (colonne 3)
+                    $address = isset($data[3]) ? trim($data[3]) : ''; // Organization Address (colonne 4)
+                } else {
+                    // Format standard: OUI | Organization Name | Organization Address
+                    $csv_oui_raw = trim($data[0]); // OUI (colonne 1)
+                    $vendor = isset($data[1]) ? trim($data[1]) : ''; // Organization Name (colonne 2)
+                    $organization = isset($data[2]) ? trim($data[2]) : ''; // Organization Name (colonne 3)
+                    $address = isset($data[3]) ? trim($data[3]) : ''; // Organization Address (colonne 4)
+                }
+                
                 $csv_oui = preg_replace('/[^0-9A-Fa-f]/', '', strtoupper($csv_oui_raw));
                 
                 // Debug: Collecter quelques OUI pour vérification
@@ -296,7 +342,8 @@ class MacVendorLookup {
                     $found_ouis[] = array(
                         'raw' => $csv_oui_raw,
                         'clean' => $csv_oui,
-                        'vendor' => isset($data[1]) ? $data[1] : 'N/A'
+                        'vendor' => $vendor,
+                        'format' => $csv_format
                     );
                 }
                 
@@ -305,8 +352,9 @@ class MacVendorLookup {
                     $similar_ouis[] = array(
                         'raw' => $csv_oui_raw,
                         'clean' => $csv_oui,
-                        'vendor' => isset($data[1]) ? $data[1] : 'N/A',
-                        'line' => $line_count
+                        'vendor' => $vendor,
+                        'line' => $line_count,
+                        'format' => $csv_format
                     );
                 }
                 
@@ -316,13 +364,13 @@ class MacVendorLookup {
                     
                     // Debug: Log le succès
                     if (defined('WP_DEBUG') && WP_DEBUG) {
-                        error_log("MAC Vendor Lookup: OUI trouvé à la ligne $line_count: $csv_oui");
+                        error_log("MAC Vendor Lookup: OUI trouvé à la ligne $line_count: $csv_oui (format: $csv_format)");
                     }
                     
                     return array(
-                        'vendor' => trim($data[1]),
-                        'organization' => trim($data[2]),
-                        'address' => isset($data[3]) ? trim($data[3]) : ''
+                        'vendor' => $vendor,
+                        'organization' => $organization,
+                        'address' => $address
                     );
                 }
             }
@@ -337,16 +385,16 @@ class MacVendorLookup {
         
         // Debug: Log les informations détaillées
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("MAC Vendor Lookup: OUI $oui non trouvé après $line_count lignes");
+            error_log("MAC Vendor Lookup: OUI $oui non trouvé après $line_count lignes (format: $csv_format)");
             error_log("MAC Vendor Lookup: Premiers OUI dans le fichier:");
             foreach ($found_ouis as $found) {
-                error_log("  Raw: '{$found['raw']}' | Clean: '{$found['clean']}' | Vendor: {$found['vendor']}");
+                error_log("  Raw: '{$found['raw']}' | Clean: '{$found['clean']}' | Vendor: {$found['vendor']} | Format: {$found['format']}");
             }
             
             if (!empty($similar_ouis)) {
                 error_log("MAC Vendor Lookup: OUI similaires trouvés:");
                 foreach (array_slice($similar_ouis, 0, 5) as $similar) {
-                    error_log("  Ligne {$similar['line']}: '{$similar['raw']}' -> '{$similar['clean']}' | {$similar['vendor']}");
+                    error_log("  Ligne {$similar['line']}: '{$similar['raw']}' -> '{$similar['clean']}' | {$similar['vendor']} | Format: {$similar['format']}");
                 }
             }
         }
