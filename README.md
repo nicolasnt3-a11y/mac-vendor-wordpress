@@ -2,6 +2,11 @@
 
 Ce plugin WordPress permet d'identifier le constructeur d'adresses MAC à partir du fichier `oui.csv` de l'IEEE.
 
+[![GitHub release](https://img.shields.io/github/v/release/nicolasnt3-a11y/mac-vendor-wordpress)](https://github.com/nicolasnt3-a11y/mac-vendor-wordpress/releases)
+[![GitHub license](https://img.shields.io/github/license/nicolasnt3-a11y/mac-vendor-wordpress)](https://github.com/nicolasnt3-a11y/mac-vendor-wordpress/blob/master/LICENSE)
+[![WordPress](https://img.shields.io/badge/WordPress-Plugin-blue.svg)](https://wordpress.org/)
+[![PHP](https://img.shields.io/badge/PHP-7.4+-green.svg)](https://php.net/)
+
 ## Fonctionnalités
 
 - **Recherche multiple** : Saisissez une ou plusieurs adresses MAC (séparées par des virgules ou des retours à la ligne)
@@ -12,22 +17,34 @@ Ce plugin WordPress permet d'identifier le constructeur d'adresses MAC à partir
 
 ## Installation
 
-1. **Téléchargez le plugin** dans le dossier `/wp-content/plugins/` de votre WordPress
-2. **Copiez le fichier `oui.csv`** à la racine du dossier du plugin
-3. **Activez le plugin** depuis l'administration WordPress
-4. **Créez une page** et utilisez le shortcode `[mac_vendor_lookup]`
+### Méthode 1 : Téléchargement direct
+1. **Téléchargez le plugin** depuis [GitHub](https://github.com/nicolasnt3-a11y/mac-vendor-wordpress/archive/refs/heads/master.zip)
+2. **Extrayez le fichier** dans le dossier `/wp-content/plugins/` de votre WordPress
+3. **Copiez le fichier `oui.csv`** à la racine du dossier du plugin
+4. **Activez le plugin** depuis l'administration WordPress
+5. **Créez une page** et utilisez le shortcode `[mac_vendor_lookup]`
+
+### Méthode 2 : Git Clone
+```bash
+cd wp-content/plugins/
+git clone https://github.com/nicolasnt3-a11y/mac-vendor-wordpress.git
+cd mac-vendor-wordpress
+```
 
 ## Structure des fichiers
 
 ```
-mac-vendor-lookup/
+mac-vendor-wordpress/
 ├── mac-vendor-lookup.php    # Fichier principal du plugin
 ├── js/
 │   └── mac-vendor-lookup.js # JavaScript pour l'interface
 ├── css/
 │   └── mac-vendor-lookup.css # Styles CSS
 ├── oui.csv                  # Base de données des constructeurs MAC
-└── README.md               # Ce fichier
+├── .github/workflows/       # Tests automatisés
+├── LICENSE                  # Licence MIT
+├── README.md               # Ce fichier
+└── DEVELOPER.md            # Documentation technique
 ```
 
 ## Utilisation
@@ -122,7 +139,15 @@ Exemple :
 
 ## Support
 
-Pour toute question ou problème, consultez la documentation WordPress ou contactez votre développeur.
+Pour toute question ou problème :
+- 📖 Consultez la [documentation technique](DEVELOPER.md)
+- 🐛 [Signalez un bug](https://github.com/nicolasnt3-a11y/mac-vendor-wordpress/issues)
+- 💡 [Proposez une fonctionnalité](https://github.com/nicolasnt3-a11y/mac-vendor-wordpress/issues)
+- 📧 Contactez le développeur
+
+## Contribution
+
+Les contributions sont les bienvenues ! Consultez le guide de contribution dans [DEVELOPER.md](DEVELOPER.md).
 
 ## Licence
 
