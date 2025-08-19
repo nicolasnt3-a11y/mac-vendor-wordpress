@@ -155,6 +155,13 @@ Ce plugin est fourni "tel quel" sans garantie. Utilisez-le à vos propres risque
 
 ## Changelog
 
+### Version 1.0.1
+- **Correction majeure** : Support du format CSV IEEE officiel
+- Détection automatique du format CSV (IEEE vs standard)
+- Correction de l'extraction OUI depuis la colonne Assignment
+- Amélioration du debug et des logs
+- Recherche robuste avec fallback
+
 ### Version 1.0
 - Version initiale
 - Recherche de constructeurs MAC
