@@ -1,5 +1,8 @@
 # Plugin MAC Vendor Lookup pour WordPress
 
+<img width="1084" height="509" alt="image" src="https://github.com/user-attachments/assets/c4983eb2-bb4d-46dc-b3d7-4ccaeee59812" />
+
+
 Ce plugin WordPress permet d'identifier le constructeur d'adresses MAC à partir du fichier `oui.csv` de l'IEEE.
 
 [![GitHub release](https://img.shields.io/github/v/release/nicolasnt3-a11y/mac-vendor-wordpress)](https://github.com/nicolasnt3-a11y/mac-vendor-wordpress/releases)
