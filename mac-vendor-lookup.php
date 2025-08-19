@@ -105,6 +105,12 @@ class MacVendorLookup {
         
         foreach ($addresses as $mac) {
             $vendor = $this->find_vendor($mac, $csv_file);
+            
+            // Si pas trouvé, essayer la recherche robuste
+            if (empty($vendor)) {
+                $vendor = $this->find_vendor_robust($mac, $csv_file);
+            }
+            
             $results[] = array(
                 'mac' => $mac,
                 'vendor' => $vendor['vendor'] ?? 'Non trouvé',
@@ -157,6 +163,64 @@ class MacVendorLookup {
         $debug_info['vendor_data'] = $vendor;
         
         wp_send_json_success($debug_info);
+    }
+    
+    // Fonction alternative de recherche plus robuste
+    private function find_vendor_robust($mac, $csv_file) {
+        $oui = substr(preg_replace('/[^0-9A-Fa-f]/', '', strtoupper($mac)), 0, 6);
+        
+        // Essayer plusieurs formats d'OUI
+        $oui_variants = array(
+            $oui,
+            strtolower($oui),
+            strtoupper($oui)
+        );
+        
+        $handle = fopen($csv_file, 'r');
+        if (!$handle) {
+            return array();
+        }
+        
+        // Ignorer l'en-tête
+        $header = fgetcsv($handle);
+        
+        $line_count = 0;
+        while (($data = fgetcsv($handle)) !== false) {
+            $line_count++;
+            
+            if (count($data) >= 1) {
+                $csv_oui_raw = trim($data[0]);
+                
+                // Essayer plusieurs formats de nettoyage
+                $csv_oui_variants = array(
+                    preg_replace('/[^0-9A-Fa-f]/', '', strtoupper($csv_oui_raw)),
+                    preg_replace('/[^0-9A-Fa-f]/', '', strtolower($csv_oui_raw)),
+                    strtoupper($csv_oui_raw),
+                    strtolower($csv_oui_raw)
+                );
+                
+                // Vérifier toutes les variantes
+                foreach ($oui_variants as $oui_variant) {
+                    foreach ($csv_oui_variants as $csv_oui_variant) {
+                        if ($csv_oui_variant === $oui_variant) {
+                            fclose($handle);
+                            return array(
+                                'vendor' => trim($data[1]),
+                                'organization' => trim($data[2]),
+                                'address' => isset($data[3]) ? trim($data[3]) : ''
+                            );
+                        }
+                    }
+                }
+            }
+            
+            if ($line_count > 100000) {
+                break;
+            }
+        }
+        
+        fclose($handle);
+        return array();
     }
     
     private function parse_mac_addresses($input) {
@@ -218,6 +282,7 @@ class MacVendorLookup {
         
         $line_count = 0;
         $found_ouis = array(); // Pour le debug
+        $similar_ouis = array(); // OUI similaires pour debug
         
         while (($data = fgetcsv($handle)) !== false) {
             $line_count++;
@@ -232,6 +297,16 @@ class MacVendorLookup {
                         'raw' => $csv_oui_raw,
                         'clean' => $csv_oui,
                         'vendor' => isset($data[1]) ? $data[1] : 'N/A'
+                    );
+                }
+                
+                // Collecter les OUI similaires (même préfixe)
+                if (strpos($csv_oui, substr($oui, 0, 2)) === 0 && $line_count <= 100) {
+                    $similar_ouis[] = array(
+                        'raw' => $csv_oui_raw,
+                        'clean' => $csv_oui,
+                        'vendor' => isset($data[1]) ? $data[1] : 'N/A',
+                        'line' => $line_count
                     );
                 }
                 
@@ -251,15 +326,28 @@ class MacVendorLookup {
                     );
                 }
             }
+            
+            // Limiter la recherche pour éviter les boucles infinies
+            if ($line_count > 100000) {
+                break;
+            }
         }
         
         fclose($handle);
         
-        // Debug: Log les premiers OUI trouvés pour diagnostic
+        // Debug: Log les informations détaillées
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log("MAC Vendor Lookup: OUI non trouvé. Premiers OUI dans le fichier:");
+            error_log("MAC Vendor Lookup: OUI $oui non trouvé après $line_count lignes");
+            error_log("MAC Vendor Lookup: Premiers OUI dans le fichier:");
             foreach ($found_ouis as $found) {
-                error_log("  Raw: {$found['raw']} | Clean: {$found['clean']} | Vendor: {$found['vendor']}");
+                error_log("  Raw: '{$found['raw']}' | Clean: '{$found['clean']}' | Vendor: {$found['vendor']}");
+            }
+            
+            if (!empty($similar_ouis)) {
+                error_log("MAC Vendor Lookup: OUI similaires trouvés:");
+                foreach (array_slice($similar_ouis, 0, 5) as $similar) {
+                    error_log("  Ligne {$similar['line']}: '{$similar['raw']}' -> '{$similar['clean']}' | {$similar['vendor']}");
+                }
             }
         }
         
