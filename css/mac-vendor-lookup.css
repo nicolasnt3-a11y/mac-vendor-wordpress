@@ -1,0 +1,300 @@
+/* Styles pour le plugin MAC Vendor Lookup */
+
+.mac-vendor-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.mac-vendor-form {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.mac-vendor-form h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #34495e;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-control.is-valid {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+.form-control.is-invalid {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.form-control.is-warning {
+    border-color: #f39c12;
+    box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.btn-success {
+    background-color: #27ae60;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #229954;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(149, 165, 166, 0.3);
+}
+
+/* Loading spinner */
+.loading {
+    text-align: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: #7f8c8d;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Résultats */
+.mac-vendor-results {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.mac-vendor-results h4 {
+    background: #2c3e50;
+    color: white;
+    margin: 0;
+    padding: 15px 20px;
+    font-weight: 600;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.table th {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    font-weight: 600;
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 2px solid #bdc3c7;
+    font-size: 14px;
+}
+
+.table td {
+    padding: 12px;
+    border-bottom: 1px solid #ecf0f1;
+    font-size: 14px;
+    vertical-align: top;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Adresse MAC avec style spécial */
+.table td:first-child {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Messages d'erreur */
+.alert {
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.alert-danger {
+    background-color: #fdf2f2;
+    border-color: #e74c3c;
+    color: #c0392b;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .mac-vendor-container {
+        padding: 10px;
+    }
+    
+    .mac-vendor-form {
+        padding: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+    
+    .table-responsive {
+        font-size: 12px;
+    }
+}
+
+/* Animation pour l'apparition des résultats */
+.mac-vendor-results {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Style pour les adresses MAC valides/invalides */
+.mac-valid {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.mac-invalid {
+    color: #e74c3c;
+    font-style: italic;
+}
+
+/* Amélioration de l'accessibilité */
+.btn:focus,
+.form-control:focus {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* Style pour les tooltips d'aide */
+.help-text {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Style pour les statistiques */
+.stats {
+    background: #ecf0f1;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.stats strong {
+    color: #3498db;
+}

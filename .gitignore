@@ -1,0 +1,54 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.log
+
+# Fichiers de configuration sensibles
+config.php
+wp-config.php
+
+# Fichiers de cache
+cache/
+*.cache
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*~
+
+# Fichiers de développement
+node_modules/
+vendor/
+composer.lock
+
+# Fichiers d'IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Fichiers de test
+test-results/
+coverage/
+
+# Fichiers de build
+build/
+dist/
+
+# Fichiers de logs WordPress
+wp-content/debug.log
+wp-content/uploads/
+
+# Fichiers de base de données
+*.sql
+*.sqlite
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.production
